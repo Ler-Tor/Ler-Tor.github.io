@@ -1,71 +1,95 @@
 <!DOCTYPE html>
+    <html>   
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                #map {
+                    height: 100%;
+                }
+                html, body {
+                    height: 100%;
+                    margin: 0;
+                    padding: 0;
+                 }
 
-<html>
+            </style>
 
-<body>
-    <button id = "find-me">Show my location</button><br/>
-    <p id = "status"></p>
-    <a id = "map-link" target="_blank"></a>
+        </head>
+        <body>
+           
+            <h1>Нажмите на кнопку для определения координат</h1>
+            <button id="location-button">Моя геопозиция</button>
+            <p id="info"></p>
+            <div id="map"></div>         
+            <script>
+                var map, mark ;
+                function initMap() {
+                    map = new google.maps.Map(document.getElementById('map'), {
+                        center: {lat: -34.397, lng: 150.644},
+                        zoom: 6
+                        });
+                    mark = new google.maps.Marker({
+                        position: {lat: -34.397, lng: 150.644},
+                        map: map
+                    });
 
-    <script>
-        function geoFindMe() {
+                    // Try HTML5 geolocation.
+                    if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                    var pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
 
-            const status = document.querySelector('#status');
-            const mapLink = document.querySelector('#map-link');
-
-            mapLink.href = '';
-            mapLink.textContent = '';
-
-            function success(position) {
-                const latitude  = position.coords.latitude;
-                const longitude = position.coords.longitude;
-
-                status.textContent = '';
-                mapLink.href = `https://www.openstreetmap.org/#map=18/${latitude}/${longitude}`;
-                mapLink.textContent = `Latitude: ${latitude} °, Longitude: ${longitude} °`;
-            }
-
-            function error() {
-                status.textContent = 'Unable to retrieve your location';
-            }
-
-                if (!navigator.geolocation) {
-                    status.textContent = 'Geolocation is not supported by your browser';
-                } else {
-                    status.textContent = 'Locating…';
-                    navigator.geolocation.getCurrentPosition(success, error);
+                    
+                    map.setCenter(pos);
+                    mark.setPosition(pos);
+                    }, function() {
+                        handleLocationError(true, infoWindow, map.getCenter());
+                        });
+                    } else {
+                        // Browser doesn't support Geolocation
+                        handleLocationError(false, infoWindow, map.getCenter());
+                    }
                 }
 
-        }
-    document.querySelector('#find-me').addEventListener('click', geoFindMe);
+               x = document.getElementById("info")
+               function GetMyPositionOnClick(){
+                   const options = {
+                       enableHighAccuracy: true,
+                       maximumAge        : 30000, //Время хранения позиции в секундах
+                       timeout           : 27000  //В секундах
+                    };
+                    navigator.geolocation.getCurrentPosition(
+                        position =>{
+                            x.innerHTML = "Latitude:" + position.coords.latitude + 
+                            "<br>Longitude: " + position.coords.longitude;
+                        },
+                        error => {
+                            switch(error.code){
+                                case 0: //Неизветсная ошибка
+                                    x.innerHTML = 'Неизвестная ошибка';
+                                    break;
+                                case 1: //Отсутвует разрешение
+                                    x.innerHTML = 'Нет разрешения на доступ к гелолокации, пожалуйста, исправьте в настройках';   
+                                    break;
+                                case 2: //Не получается получить позицию
+                                    x.innerHTML = 'Не получается получить позицию';
+                                    break;
+                                case 3:
+                                    x.innerHTML = 'Timeout'
+                                    break;
+                            }
+                        },
+                        options
+                    )
+                }
 
-    </script>
+            document.querySelector('#location-button').addEventListener('click', GetMyPositionOnClick);
+           </script>
+           <script async defer
+           src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCnvSX5TxPOJ00k7Qc2iwvRfIElYUxHhCw&callback=initMap">
+           </script>
+        </body>
 
-
-<p>Click the button to get your coordinates.</p>
-
-<button onclick="getLocation()">Try It</button>
-
-<p id="demo"></p>
-
-<script>
-var x = document.getElementById("demo");
-
-function getLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition);
-    } else { 
-        x.innerHTML = "Geolocation is not supported by this browser.";
-    }
-}
-
-function showPosition(position) {
-    x.innerHTML = "Latitude: " + position.coords.latitude + 
-    "<br>Longitude: " + position.coords.longitude;
-}
-</script>
-
-
-</body>
-
-</html>
+    </html>
