@@ -1,95 +1,120 @@
 <!DOCTYPE html>
-    <html>   
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                #map {
-                    height: 100%;
-                }
-                html, body {
-                    height: 100%;
-                    margin: 0;
-                    padding: 0;
-                 }
+<html>
+    <head>
+        <title>Геолокация</title>
+        <meta charset="UTF-8">
+    </head>
 
-            </style>
+    <body>
+        <!--Единоразовое определение координат-->
+        <div id = "SinglePos">
+            <h1>Нажмите кнопку для определения позиции</h1>
+            <button id = "GetPos">Получить позицию</button>
+            <h4 id = "info"></h4>
+        </div>
+        <!-- Длительное определение координат-->
+        <div id = "GeoTrack">
+            <h1>Нажмите для геотрэка</h1>
+            <button id = "Track">Track</button>
+            <h1></h1>
+        </div>
+        <div id = "GoogleMaps" style="width:100%;height:400px;"></div>
+        
+        <script>
+            /*
+            function loadScript(src){
+                let script = document.createElement('script');
+                script.src = srs;
+                document.body.append(script)
+            }
+            */
 
-        </head>
-        <body>
-           
-            <h1>Нажмите на кнопку для определения координат</h1>
-            <button id="location-button">Моя геопозиция</button>
-            <p id="info"></p>
-            <div id="map"></div>         
-            <script>
-                var map, mark ;
-                function initMap() {
-                    map = new google.maps.Map(document.getElementById('map'), {
-                        center: {lat: -34.397, lng: 150.644},
-                        zoom: 6
-                        });
-                    mark = new google.maps.Marker({
-                        position: {lat: -34.397, lng: 150.644},
-                        map: map
-                    });
+            var map, marker;
+            function initMap(){ //Инициализация гугловской карты
+                map = new google.maps.Map(document.getElementById('GoogleMaps'), {
+                    center: {lat: 55.7558, lng: 37.6173}, //Москва
+                    zoom: 8
+                });
+                mark = new google.maps.Marker({
+                    position: {lat: undefined, lng: undefined},
+                    map: map,
+                    animation: google.maps.Animation.DROP
+                });
+            }
 
-                    // Try HTML5 geolocation.
-                    if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function(position) {
+            const options = {
+                    enableHighAccuracy: true,
+                    maximumAge        : 30000, //Время хранения позиции в секундах
+                    timeout           : 27000  //В секундах
+            };
+            
+            function GetMyPositionOnClick(){ //Единоразовая локация
+                
+                navigator.geolocation.getCurrentPosition(GeoSuccess, GeoError, options);
+
+                function GeoSuccess(position){
                     var pos = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
+                        lat : position.coords.latitude,
+                        lng : position.coords.longitude,
                     };
-
-                    
+                    x = documentx = document.getElementById("info");
+                    x.innerHTML = "Широта: " + position.coords.latitude + 
+                            "<br>Долгота: " + position.coords.longitude;
                     map.setCenter(pos);
+                    map.setZoom(14);
                     mark.setPosition(pos);
-                    }, function() {
-                        handleLocationError(true, infoWindow, map.getCenter());
-                        });
-                    } else {
-                        // Browser doesn't support Geolocation
-                        handleLocationError(false, infoWindow, map.getCenter());
+                }
+                function GeoError(err){
+                    switch(err.code){
+                        case 0: //Неизветсная ошибка
+                            alert('Неизвестная ошибка');
+                            break;
+                        case 1: //Отсутвует разрешение
+                            alert('Нет разрешения на доступ к гелолокации, пожалуйста, исправьте в настройках');   
+                            break;
+                        case 2: //Не получается получить позицию
+                            alert('Не получается получить позицию');
+                            break;
+                        case 3:
+                            alert('Timeout');
+                            break;
+                    }
+                }                       
+            }
+            document.querySelector('#GetPos').addEventListener('click', GetMyPositionOnClick);
+
+//Дописать автоматическое обновление геолокации и его отрисовку с линиями на карте 
+            function PositionTrack(){ //Длительное определение координат
+                var watchID = null;
+                watchID = navigator.geolocation.watchPosition(TrackSuccess, TrackError, options);
+
+                function TrackSuccess(position){
+                    var pos = {
+                        lat: position.coord.lat,
+                        lng: position.coord.lng
                     }
                 }
 
-               x = document.getElementById("info")
-               function GetMyPositionOnClick(){
-                   const options = {
-                       enableHighAccuracy: true,
-                       maximumAge        : 30000, //Время хранения позиции в секундах
-                       timeout           : 27000  //В секундах
-                    };
-                    navigator.geolocation.getCurrentPosition(
-                        position =>{
-                            x.innerHTML = "Latitude:" + position.coords.latitude + 
-                            "<br>Longitude: " + position.coords.longitude;
-                        },
-                        error => {
-                            switch(error.code){
-                                case 0: //Неизветсная ошибка
-                                    x.innerHTML = 'Неизвестная ошибка';
-                                    break;
-                                case 1: //Отсутвует разрешение
-                                    x.innerHTML = 'Нет разрешения на доступ к гелолокации, пожалуйста, исправьте в настройках';   
-                                    break;
-                                case 2: //Не получается получить позицию
-                                    x.innerHTML = 'Не получается получить позицию';
-                                    break;
-                                case 3:
-                                    x.innerHTML = 'Timeout'
-                                    break;
-                            }
-                        },
-                        options
-                    )
-                }
-
-            document.querySelector('#location-button').addEventListener('click', GetMyPositionOnClick);
-           </script>
-           <script async defer
-           src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCnvSX5TxPOJ00k7Qc2iwvRfIElYUxHhCw&callback=initMap">
-           </script>
-        </body>
-
-    </html>
+                function TrackError(err){
+                    switch(err.code){
+                        case 0:
+                            alert('Неизвестная ошибка');
+                            break;
+                        case 1:
+                            alert('Нет разрешения на доступ к гелолокации, пожалуйста, исправьте в настройках');
+                            break;
+                        case 2:
+                            alert('Не получается получить позицию');
+                            break;
+                        case 3:
+                            alert('Timeout');
+                            break;
+                    }
+                }           
+            }
+            document.querySelector("#Track").addEventListener('click', PositionTrack);
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCnvSX5TxPOJ00k7Qc2iwvRfIElYUxHhCw&callback=initMap"
+        async defer></script>
+    </body>
+</html>
