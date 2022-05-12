@@ -1,120 +1,49 @@
-<!DOCTYPE html>
 <html>
-    <head>
-        <title>Геолокация</title>
-        <meta charset="UTF-8">
-    </head>
+<head>
+<meta charset="utf-8">
+<title>Leaflet.curve plugin demo</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.1.0/dist/leaflet.css" />
+<style>
+#map { height: 500px; }
+</style>
+</head>
+<body>
+<div id="map"></div>
 
-    <body>
-        <!--Единоразовое определение координат-->
-        <div id = "SinglePos">
-            <h1>Нажмите кнопку для определения позиции</h1>
-            <button id = "GetPos">Получить позицию</button>
-            <h4 id = "info"></h4>
-        </div>
-        <!-- Длительное определение координат-->
-        <div id = "GeoTrack">
-            <h1>Нажмите для геотрэка</h1>
-            <button id = "Track">Track</button>
-            <h1></h1>
-        </div>
-        <div id = "GoogleMaps" style="width:100%;height:400px;"></div>
-        
-        <script>
-            /*
-            function loadScript(src){
-                let script = document.createElement('script');
-                script.src = srs;
-                document.body.append(script)
-            }
-            */
 
-            var map, marker;
-            function initMap(){ //Инициализация гугловской карты
-                map = new google.maps.Map(document.getElementById('GoogleMaps'), {
-                    center: {lat: 55.7558, lng: 37.6173}, //Москва
-                    zoom: 8
-                });
-                mark = new google.maps.Marker({
-                    position: {lat: undefined, lng: undefined},
-                    map: map,
-                    animation: google.maps.Animation.DROP
-                });
-            }
+<script src="https://unpkg.com/leaflet@1.1.0/dist/leaflet-src.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/17.2.0/Tween.min.js"></script>
+<script src="src/leaflet.curve.js"></script>
 
-            const options = {
-                    enableHighAccuracy: true,
-                    maximumAge        : 30000, //Время хранения позиции в секундах
-                    timeout           : 27000  //В секундах
-            };
-            
-            function GetMyPositionOnClick(){ //Единоразовая локация
-                
-                navigator.geolocation.getCurrentPosition(GeoSuccess, GeoError, options);
+<script>
+//set up map
+var map = L.map('map').setView([46.05, 11.05], 5);
+L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
 
-                function GeoSuccess(position){
-                    var pos = {
-                        lat : position.coords.latitude,
-                        lng : position.coords.longitude,
-                    };
-                    x = documentx = document.getElementById("info");
-                    x.innerHTML = "Широта: " + position.coords.latitude + 
-                            "<br>Долгота: " + position.coords.longitude;
-                    map.setCenter(pos);
-                    map.setZoom(14);
-                    mark.setPosition(pos);
-                }
-                function GeoError(err){
-                    switch(err.code){
-                        case 0: //Неизветсная ошибка
-                            alert('Неизвестная ошибка');
-                            break;
-                        case 1: //Отсутвует разрешение
-                            alert('Нет разрешения на доступ к гелолокации, пожалуйста, исправьте в настройках');   
-                            break;
-                        case 2: //Не получается получить позицию
-                            alert('Не получается получить позицию');
-                            break;
-                        case 3:
-                            alert('Timeout');
-                            break;
-                    }
-                }                       
-            }
-            document.querySelector('#GetPos').addEventListener('click', GetMyPositionOnClick);
+//use a mix of renderers
+var customPane = map.createPane("customPane");
+var canvasRenderer = L.canvas({pane:"customPane"});
+customPane.style.zIndex = 399; // put just behind the standard overlay pane which is at 400
 
-//Дописать автоматическое обновление геолокации и его отрисовку с линиями на карте 
-            function PositionTrack(){ //Длительное определение координат
-                var watchID = null;
-                watchID = navigator.geolocation.watchPosition(TrackSuccess, TrackError, options);
+//quadratic bezier curve
+var pathOne = L.curve(['M',[50.14874640066278,14.106445312500002],
+					   'Q',[51.67255514839676,16.303710937500004],
+						   [50.14874640066278,18.676757812500004],
+					   'T',[49.866316729538674,25.0927734375]], {animate: 3000, renderer: canvasRenderer, color: '#FFFF0'}).addTo(map);
 
-                function TrackSuccess(position){
-                    var pos = {
-                        lat: position.coord.lat,
-                        lng: position.coord.lng
-                    }
-                }
 
-                function TrackError(err){
-                    switch(err.code){
-                        case 0:
-                            alert('Неизвестная ошибка');
-                            break;
-                        case 1:
-                            alert('Нет разрешения на доступ к гелолокации, пожалуйста, исправьте в настройках');
-                            break;
-                        case 2:
-                            alert('Не получается получить позицию');
-                            break;
-                        case 3:
-                            alert('Timeout');
-                            break;
-                    }
-                }           
-            }
-            document.querySelector("#Track").addEventListener('click', PositionTrack);
-        </script>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCnvSX5TxPOJ00k7Qc2iwvRfIElYUxHhCw&callback=initMap"
-        async defer></script>
-    </body>
+
+var pathFour = L.curve(['M',[46.86019101567027,-29.047851562500004],
+					   'Q',[50.48547354578499,-23.818359375000004],
+						   [46.70973594407157,-19.907226562500004],
+					   'T',[46.6795944656402,-11.0302734375]], {dashArray: '5', animate: {duration: 3000, iterations: Infinity}}).addTo(map);
+
+
+map.on('click', function(e) {
+    console.log(e.latlng);
+});
+
+</script>
+
+</body>
 </html>
