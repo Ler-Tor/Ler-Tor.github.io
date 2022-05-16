@@ -34,10 +34,68 @@
   <div id="map"></div>
 
   <div style="position:relative; margin:auto; width:90%">
-    <h2>Изменить толщину</h2>
+    <h2>Изменить толщину:</h2>
     <input type="range" id="myRange" value="5" max="15" min="0" style="width:80%" onclick="num.value = this.value">
     <output id="num">5</output>
   </div>
+
+  <div style="position:relative; margin:auto; width:90%">
+    <h2>Изменить цвет железной дороги:</h2>
+    <input type="color" id="z_color" list="zd_colors">
+    <datalist id="zd_colors">
+      <option value="#B57281">
+      <option value="#256D7B">
+      <option value="#F2100C">
+      <option value="#C154C1">
+      <option value="#82C0C0">
+      <option value="#FF00CC">
+      <option value="#911E42">
+      <option value="#B07D2B">
+      <option value="#32111FF">
+      <option value="#118A01">
+      <option value="#755E12">
+      <option value="#FFCC00">  
+      <option value="#BDECB6">
+      <option value="#E9967A">
+      <option value="#7FFF00">
+      <option value="#1CD3A2">
+      <option value="#FFDEAD">
+      <option value="#00FFFF">
+      <option value="#00693E">
+      <option value="#DE64A1">
+      <option value="#8FBC8F">
+      <option value="#99CC00">       
+      <option value="#B80CC4">
+      <option value="#4D2800">
+      <option value="#F7A305">
+      <option value="#735184">
+      <option value="#1E1E1E">
+      <option value="#7FFFD4">
+      <option value="#FF4F00">
+      <option value="#7DF9FF">
+      <option value="#990066">
+      <option value="#AB05F7">
+      <option value="#D97E07">
+      <option value="#00BFFF">
+      <option value="#0D4502">
+      <option value="#051A66">
+      <option value="#FC0341">
+      <option value="#D241FA">
+      <option value="#FFD702">
+
+      </datalist>
+  </div>
+
+  <div style="position:relative; margin:auto; width:90%">
+    <h2>Тип электрофикации:</h2>
+    <input type="color" list="elec_colors" id="el_color">
+    <datalist id="elec_colors">
+      <option value="#FBFF05">
+      <option value="#05FFDE">
+    </datalist>
+  </div>
+  
+
   <script>
     window.onload = function () {
 
@@ -220,7 +278,14 @@
         ]
       };
       let lineWeight = 5;
-      const lineColors = ['red', 'red', 'red', 'red'];
+
+      let lineColor = document.querySelector('#z_color');
+      let offsetColor = document.querySelector('#el_color');
+      let temp_offset = '#000000';
+      console.log(lineColor.value);
+      console.log(offsetColor.value)
+      let lineColors = ['red', 'red', 'red', 'red'];
+      
 
       var map = new L.Map('map', {
         center: [48.868, 2.365],
@@ -257,6 +322,16 @@
         buildLayers();
 
       };
+
+      lineColor.oninput = function () {
+        lineColors = [lineColor.value, lineColor.value, lineColor.value, lineColor.value];
+        buildLayers();
+      }
+
+      offsetColor.oninput = function() {
+        temp_offset = offsetColor.value;
+        buildLayers();
+      }
 
       buildLayers();
 
@@ -296,7 +371,7 @@
           }).addTo(outlines);
 
           L.polyline(segmentCoords, {
-            color: 'blue',
+            color: temp_offset,
             weight: segmentWidth + 5,
             opacity: 1
           }).addTo(lineBg);
