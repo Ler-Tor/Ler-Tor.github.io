@@ -34,9 +34,15 @@
   <div id="map"></div>
 
   <div style="position:relative; margin:auto; width:90%">
-    <h2>Изменить толщину:</h2>
+    <h2>Изменить толщину линии:</h2>
     <input type="range" id="myRange" value="5" max="15" min="0" style="width:80%" onclick="num.value = this.value">
     <output id="num">5</output>
+  </div>
+
+  <div style="position:relative; margin:auto; width:90%">
+    <h2>Изменить толщину обводки:</h2>
+    <input type="range" id="offsetWeight" value="5" max="30" min="0" style="width:80%" onclick="off.value = this.value">
+    <output id="off">5</output>
   </div>
 
   <div style="position:relative; margin:auto; width:90%">
@@ -323,6 +329,15 @@
 
       };
 
+
+      var offWeight = 8;
+      var offsetWeight = document.querySelector('#offsetWeight');
+
+      offsetWeight.oninput = function () {
+        offWeight = parseInt(offsetWeight.value);
+        buildLayers();
+      }
+
       lineColor.oninput = function () {
         lineColors = [lineColor.value, lineColor.value, lineColor.value, lineColor.value];
         buildLayers();
@@ -366,13 +381,13 @@
 
           L.polyline(segmentCoords, {
             color: '#000',
-            weight: segmentWidth + 8,
+            weight: segmentWidth + offWeight,
             opacity: 1
           }).addTo(outlines);
 
           L.polyline(segmentCoords, {
             color: temp_offset,
-            weight: segmentWidth + 5,
+            weight: segmentWidth + offWeight,
             opacity: 1
           }).addTo(lineBg);
 
