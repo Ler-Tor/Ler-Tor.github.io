@@ -1,49 +1,339 @@
+<!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="utf-8">
-<title>Leaflet.curve plugin demo</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.1.0/dist/leaflet.css" />
-<style>
-#map { height: 500px; }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+  <title>Leaflet Polyline Offset - Bus lines example</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 80%;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+
+  <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+  <script src="leaflet.polylineoffset.js"></script>
+
 </head>
+
 <body>
-<div id="map"></div>
+  <div id="map"></div>
+
+  <div style="position:relative; margin:auto; width:90%">
+    <h2>Изменить толщину</h2>
+    <input type="range" id="myRange" value="5" max="15" min="0" style="width:80%" onclick="num.value = this.value">
+    <output id="num">5</output>
+  </div>
+  <script>
+    window.onload = function () {
+
+      const geoJson = {
+        "type": "FeatureCollection",
+        "features": [
+          {
+            "type": "Feature",
+            "properties": {
+              "lines": [0, 1]
+            },
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  2.357919216156006,
+                  48.87621773324153
+                ],
+                [
+                  2.357339859008789,
+                  48.874834693731664
+                ],
+                [
+                  2.362983226776123,
+                  48.86855408432749
+                ],
+                [
+                  2.362382411956787,
+                  48.86796126699168
+                ],
+                [
+                  2.3633265495300293,
+                  48.86735432768131
+                ]
+              ]
+            }
+          },
+          {
+            "type": "Feature",
+            "properties": {
+              "lines": [2, 3]
+            },
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  2.351503372192383,
+                  48.86443950493823
+                ],
+                [
+                  2.361609935760498,
+                  48.866775611250205
+                ],
+                [
+                  2.3633265495300293,
+                  48.86735432768131
+                ]
+              ]
+            }
+          },
+          {
+            "type": "Feature",
+            "properties": {
+              "lines": [1, 2]
+            },
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  2.369627058506012,
+                  48.86619159489603
+                ],
+                [
+                  2.3724031448364253,
+                  48.8626397112042
+                ],
+                [
+                  2.3728322982788086,
+                  48.8616233285001
+                ],
+                [
+                  2.372767925262451,
+                  48.86080456075567
+                ]
+              ]
+            }
+          },
+          {
+            "type": "Feature",
+            "properties": {
+              "lines": [0]
+            },
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  2.3647427558898926,
+                  48.86653565369396
+                ],
+                [
+                  2.3647642135620117,
+                  48.86630981023694
+                ],
+                [
+                  2.3666739463806152,
+                  48.86314789481612
+                ],
+                [
+                  2.3673176765441895,
+                  48.86066339254944
+                ]
+              ]
+            }
+          },
+          {
+            "type": "Feature",
+            "properties": {
+              "lines": [0, 1, 2, 3]
+            },
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  2.3633265495300293,
+                  48.86735432768131
+                ],
+                [
+                  2.3647427558898926,
+                  48.86653565369396
+                ]
+              ]
+            }
+          },
+          {
+            "type": "Feature",
+            "properties": {
+              "lines": [1, 2, 3]
+            },
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  2.3647427558898926,
+                  48.86653565369396
+                ],
+                [
+                  2.3650002479553223,
+                  48.86660622956524
+                ],
+                [
+                  2.365509867668152,
+                  48.866987337550164
+                ],
+                [
+                  2.369627058506012,
+                  48.86619159489603
+                ]
+              ]
+            }
+          },
+          {
+            "type": "Feature",
+            "properties": {
+              "lines": [3]
+            },
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  2.369627058506012,
+                  48.86619159489603
+                ],
+                [
+                  2.372349500656128,
+                  48.865702850895744
+                ]
+              ]
+            }
+          }
+        ]
+      };
+      let lineWeight = 5;
+      const lineColors = ['red', 'red', 'red', 'red'];
+
+      var map = new L.Map('map', {
+        center: [48.868, 2.365],
+        zoom: 15,
+        layers: [
+          L.tileLayer('http://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png', {
+            minZoom: 0,
+            maxZoom: 18,
+            attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+          })
+        ]
+      });
+
+      var ZoomViewer = L.Control.extend({
+        onAdd: function () {
+          var gauge = L.DomUtil.create('div');
+          gauge.style.width = '200px';
+          gauge.style.background = 'rgba(255,255,255,0.5)';
+          gauge.style.textAlign = 'left';
+          map.on('zoomstart zoom zoomend', function (ev) {
+            gauge.innerHTML = 'Zoom level: ' + map.getZoom();
+          })
+          return gauge;
+        }
+      });
+
+      (new ZoomViewer).addTo(map);
+
+      var myRange = document.querySelector('#myRange');
+
+      myRange.oninput = function () {
+        lineWeight = parseInt(myRange.value);
+        console.log(lineWeight);
+        buildLayers();
+
+      };
+
+      buildLayers();
+
+      function buildLayers() {
+
+        //очистка карты
+        map.eachLayer(layer => {
+          map.removeLayer(layer);
+        });
+
+        // manage overlays in groups to ease superposition order
+        var outlines = L.layerGroup();
+        var lineBg = L.layerGroup();
+        var busLines = L.layerGroup();
+        var busStops = L.layerGroup();
+
+        var ends = [];
+        function addStop(ll) {
+          for (var i = 0, found = false; i < ends.length && !found; i++) {
+            found = (ends[i].lat == ll.lat && ends[i].lng == ll.lng);
+          }
+          if (!found) {
+            ends.push(ll);
+          }
+        }
+
+        var lineSegment, linesOnSegment, segmentCoords, segmentWidth;
+        geoJson.features.forEach(function (lineSegment) {
+          segmentCoords = L.GeoJSON.coordsToLatLngs(lineSegment.geometry.coordinates, 0);
+          linesOnSegment = lineSegment.properties.lines;
+          segmentWidth = linesOnSegment.length * (lineWeight + 1);
+
+          L.polyline(segmentCoords, {
+            color: '#000',
+            weight: segmentWidth + 8,
+            opacity: 1
+          }).addTo(outlines);
+
+          L.polyline(segmentCoords, {
+            color: 'blue',
+            weight: segmentWidth + 5,
+            opacity: 1
+          }).addTo(lineBg);
+
+          for (var j = 0; j < linesOnSegment.length; j++) {
+            L.polyline(segmentCoords, {
+              color: lineColors[linesOnSegment[j]],
+              weight: lineWeight,
+              opacity: 1,
+              offset: j * (lineWeight + 1) - (segmentWidth / 2) + ((lineWeight + 1) / 2)
+            }).addTo(busLines);
+          }
+
+          addStop(segmentCoords[0]);
+          addStop(segmentCoords[segmentCoords.length - 1]);
+        });
+
+        ends.forEach(function (endCoords) {
+          L.circleMarker(endCoords, {
+            color: '#000',
+            fillColor: '#ccc',
+            fillOpacity: 1,
+            radius: 10,
+            weight: 4,
+            opacity: 1
+          }).addTo(busStops);
+        });
+
+        outlines.addTo(map);
+        lineBg.addTo(map);
+        busLines.addTo(map);
+        busStops.addTo(map);
+      }
 
 
-<script src="https://unpkg.com/leaflet@1.1.0/dist/leaflet-src.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/17.2.0/Tween.min.js"></script>
-<script src="src/leaflet.curve.js"></script>
-
-<script>
-//set up map
-var map = L.map('map').setView([46.05, 11.05], 5);
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
-
-//use a mix of renderers
-var customPane = map.createPane("customPane");
-var canvasRenderer = L.canvas({pane:"customPane"});
-customPane.style.zIndex = 399; // put just behind the standard overlay pane which is at 400
-
-//quadratic bezier curve
-var pathOne = L.curve(['M',[50.14874640066278,14.106445312500002],
-					   'Q',[51.67255514839676,16.303710937500004],
-						   [50.14874640066278,18.676757812500004],
-					   'T',[49.866316729538674,25.0927734375]], {animate: 3000, renderer: canvasRenderer, color: '#FFFF0'}).addTo(map);
+    }
 
 
-
-var pathFour = L.curve(['M',[46.86019101567027,-29.047851562500004],
-					   'Q',[50.48547354578499,-23.818359375000004],
-						   [46.70973594407157,-19.907226562500004],
-					   'T',[46.6795944656402,-11.0302734375]], {dashArray: '5', animate: {duration: 3000, iterations: Infinity}}).addTo(map);
-
-
-map.on('click', function(e) {
-    console.log(e.latlng);
-});
-
-</script>
-
+  </script>
 </body>
-</html>
