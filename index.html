@@ -100,6 +100,12 @@
       <option value="#05FFDE">
     </datalist>
   </div>
+
+  <div style="position:relative; margin:auto; width:90%">
+    <h2>Изменить длинну пунктира:</h2>
+    <input type="range" id="dash_t" value="5" max="30" min="0" style="width:80%" onclick="off.value = this.value">
+    <output id="off">5</output>
+  </div>
   
 
   <script>
@@ -320,6 +326,13 @@
 
       (new ZoomViewer).addTo(map);
 
+      var dash_temp = 3;
+      var dash_t = document.querySelector('#dash_t');
+      dash_t.oninput = function() {
+        dash_temp = parseInt(dash_t.value);
+        buildLayers();
+      }
+
       var myRange = document.querySelector('#myRange');
 
       myRange.oninput = function () {
@@ -380,12 +393,14 @@
           segmentWidth = linesOnSegment.length * (lineWeight + 1);
 
           L.polyline(segmentCoords, {
+            dashArray: dash_temp + ',10',
             color: '#000',
             weight: segmentWidth + offWeight,
             opacity: 1
           }).addTo(outlines);
 
           L.polyline(segmentCoords, {
+            dashArray: dash_temp + ',10',
             color: temp_offset,
             weight: segmentWidth + offWeight,
             opacity: 1
@@ -393,6 +408,7 @@
 
           for (var j = 0; j < linesOnSegment.length; j++) {
             L.polyline(segmentCoords, {
+             // dashArray: '5,10',
               color: lineColors[linesOnSegment[j]],
               weight: lineWeight,
               opacity: 1,
